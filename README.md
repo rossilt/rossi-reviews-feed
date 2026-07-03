@@ -10,8 +10,18 @@ Join key everywhere: the **Shopify product ID**. Full brief: [CLAUDE.md](CLAUDE.
 
 | Stage | Source | Delivers | Status |
 |---|---|---|---|
-| **v0** | Shopify `ssw.review` metafield (Growave-maintained) via Admin GraphQL | `stars`, `avg`, `count` for all 3 markets (LT/LV/EE) | ✅ built; metafield shape live-verified 2026-07-03 |
-| **v1** | Growave API | `featured_text` quote (LT emails only) | gated on Phase 0 T3 (`growave_source.py`) |
+| **v0** | Shopify `ssw.review` metafield (Growave-maintained) via Admin GraphQL | `stars`, `avg`, `count` for all 3 markets (LT/LV/EE) | ✅ live in production |
+| **v1** | Growave API (`/v2/reviews/getReviews`, OAuth client-credentials, scope `read_review`) | `featured_text` quote (LT emails only) | ✅ live; T3 passed 2026-07-03 — 9,475 reviews fetched, ~870 products quoted |
+
+v1 merge policy: **count/avg/stars stay metafield-authoritative** (live-proven to
+match the site); Growave contributes only the featured quote. The §5.1 aggregate
+cross-check runs every build (logged, non-fatal). If the Growave fetch fails,
+`--source auto` degrades to the v0 stars-only feed instead of failing the run.
+Growave payloads carry customer emails — the mapper keeps only
+`customerDisplayName`, and the test suite asserts no PII can reach the feed.
+Growave exposes **no review language field** (CLAUDE.md §3 confirmed), so
+untagged reviews are treated as store-default LT; v2 language detection remains
+the plan once LV/EE reviews start arriving.
 
 ```
 Shopify metafields ──▶ build (parse → stars → emit+guard) ──▶ docs/reviews.json

@@ -46,8 +46,10 @@ jobs:
           SHOPIFY_CLIENT_ID: ${{ secrets.SHOPIFY_CLIENT_ID }}
           SHOPIFY_CLIENT_SECRET: ${{ secrets.SHOPIFY_CLIENT_SECRET }}
           SHOPIFY_ADMIN_TOKEN: ${{ secrets.SHOPIFY_ADMIN_TOKEN }}
+          GROWAVE_API_KEY: ${{ secrets.GROWAVE_API_KEY }}
+          GROWAVE_API_SECRET: ${{ secrets.GROWAVE_API_SECRET }}
         run: |
-          python -m rossi_reviews.build --source shopify --out docs/reviews.json \
+          python -m rossi_reviews.build --out docs/reviews.json \
             ${{ inputs.force_rebuild && '--force' || '' }}
 
       - name: Commit & push if changed
