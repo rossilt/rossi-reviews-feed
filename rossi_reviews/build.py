@@ -18,14 +18,20 @@ from pathlib import Path
 from .config import get_settings
 from .emit import CollapseError, publish
 from .models import ProductSummary
-from .shopify_source import ShopifySource, parse_review_metafield
+from .shopify_source import ShopifySource, fetch_access_token, parse_review_metafield
 
 log = logging.getLogger(__name__)
 
 
 def summaries_from_shopify() -> dict[str, ProductSummary]:
     s = get_settings()
-    with ShopifySource(s.shopify_shop, s.shopify_admin_token, s.shopify_api_version) as src:
+    # Prefer the client-credentials exchange (always-fresh token); a static
+    # shpat_ token is the fallback for setups without client creds.
+    if s.shopify_client_id and s.shopify_client_secret:
+        token = fetch_access_token(s.shopify_shop, s.shopify_client_id, s.shopify_client_secret)
+    else:
+        token = s.shopify_admin_token
+    with ShopifySource(s.shopify_shop, token, s.shopify_api_version) as src:
         return src.fetch_summaries()
 
 

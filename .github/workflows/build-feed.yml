@@ -2,7 +2,9 @@
 # Builds docs/reviews.json from Shopify ssw.review metafields and commits it to
 # main; GitHub Pages (Settings → Pages → main /docs) serves it to Klaviyo.
 #
-# Required repo secrets: SHOPIFY_SHOP (….myshopify.com), SHOPIFY_ADMIN_TOKEN.
+# Required repo secrets: SHOPIFY_SHOP (….myshopify.com) plus EITHER
+# SHOPIFY_CLIENT_ID + SHOPIFY_CLIENT_SECRET (preferred; fresh token per run)
+# OR SHOPIFY_ADMIN_TOKEN (static shpat_).
 # If the collapse guard trips, the job FAILS and the previous feed stays live —
 # that is the intended behaviour (§5.1). Investigate, then rerun with force_rebuild.
 
@@ -41,6 +43,8 @@ jobs:
       - name: Build feed
         env:
           SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
+          SHOPIFY_CLIENT_ID: ${{ secrets.SHOPIFY_CLIENT_ID }}
+          SHOPIFY_CLIENT_SECRET: ${{ secrets.SHOPIFY_CLIENT_SECRET }}
           SHOPIFY_ADMIN_TOKEN: ${{ secrets.SHOPIFY_ADMIN_TOKEN }}
         run: |
           python -m rossi_reviews.build --source shopify --out docs/reviews.json \

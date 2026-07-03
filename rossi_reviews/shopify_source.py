@@ -22,6 +22,27 @@ from .transform import summary_from_counts
 
 log = logging.getLogger(__name__)
 
+def fetch_access_token(
+    shop: str, client_id: str, client_secret: str, *, timeout: float = 30.0
+) -> str:
+    """Exchange custom-app client credentials for a short-lived Admin API token
+    (OAuth client_credentials grant, ~24h expiry — each run mints a fresh one).
+    Live-verified against rossilietuva.myshopify.com 2026-07-03."""
+    resp = httpx.post(
+        f"https://{shop}/admin/oauth/access_token",
+        json={
+            "grant_type": "client_credentials",
+            "client_id": client_id,
+            "client_secret": client_secret,
+        },
+        timeout=timeout,
+    )
+    resp.raise_for_status()
+    data = resp.json()
+    log.info("minted admin token via client-credentials grant (scope: %s)", data.get("scope"))
+    return data["access_token"]
+
+
 PRODUCTS_QUERY = """
 query ProductsReviewMeta($first: Int!, $cursor: String) {
   products(first: $first, after: $cursor) {

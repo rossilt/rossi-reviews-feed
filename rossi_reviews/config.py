@@ -12,8 +12,12 @@ class Settings(BaseSettings):
         env_file=".env", env_file_encoding="utf-8", extra="ignore"
     )
 
-    # Shopify (v0 source)
+    # Shopify (v0 source). Auth: EITHER client id+secret (custom-app OAuth
+    # client-credentials grant — a fresh 24h token is minted each run; preferred)
+    # OR a static shpat_ admin token.
     shopify_shop: str = ""            # *.myshopify.com domain
+    shopify_client_id: str = ""
+    shopify_client_secret: str = ""
     shopify_admin_token: str = ""
     shopify_api_version: str = "2025-07"
 

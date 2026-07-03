@@ -2,7 +2,20 @@ import httpx
 import pytest
 import respx
 
-from rossi_reviews.shopify_source import ShopifySource, parse_review_metafield
+from rossi_reviews.shopify_source import ShopifySource, fetch_access_token, parse_review_metafield
+
+
+@respx.mock
+def test_fetch_access_token_client_credentials():
+    route = respx.post("https://test-shop.myshopify.com/admin/oauth/access_token").mock(
+        return_value=httpx.Response(
+            200, json={"access_token": "shpat_fresh", "scope": "read_products", "expires_in": 86399}
+        )
+    )
+    token = fetch_access_token("test-shop.myshopify.com", "cid", "csecret")
+    assert token == "shpat_fresh"
+    sent = route.calls[0].request
+    assert b'"grant_type": "client_credentials"' in sent.content or b'"grant_type":"client_credentials"' in sent.content
 
 
 def node(pid, value):
