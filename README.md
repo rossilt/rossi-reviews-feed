@@ -89,11 +89,22 @@ Keys are strings; only `count > 0` products are included; v0 emits the
 `featured_*` fields as `null`. If T2 shows the wrapper breaks Klaviyo's
 `|lookup`, rebuild with `--flat` (or `FEED_WRAPPED=false`).
 
-## Phase 0 status (CLAUDE.md §6)
+## Phase 0 status (CLAUDE.md §6) — T2 + T4 PASSED live (2026-07-03)
 
-- **v0 source shape — done** (live GraphQL check, 2026-07-03): metafield type
-  `json`; values inconsistently number/string-typed (parser coerces both);
+- **v0 source shape — done**: `ssw.review` metafield type `json`; values
+  inconsistently number/string-typed (parser coerces both);
   `legacyResourceId` == embedded `product_id`; unreviewed products → `null`.
-- **T2 / T4 (Klaviyo lookup + `item.id` form)** — open; done in the Klaviyo UI
-  once the feed URL is live.
-- **T3 (Growave API)** — open; gates v1 only.
+- **T2 — done**: feed `rossi_reviews` registered (Klaviyo feed 8744194), full
+  1,166-product document ingested, status *Healthy*. The **wrapped root works**
+  (`feeds.rossi_reviews.products|lookup:…` + `.generated_at` readable);
+  `|lookup` works with literal AND variable keys; misses are clean falsy.
+- **T4 — done, with a catch**: on `Kliento_perziuretos_prekes` items,
+  **`item.id` is Klaviyo's internal integer id — the Shopify product id is
+  `item.external_id` (string)**. String-to-string keying, no coercion issue.
+  The join was verified 6/6 on live data in a hybrid-template preview.
+- **Klaviyo deliverables live**: template `VxjG2P` ("Rossi — Peržiūrėtos prekės
+  su atsiliepimais (LT)") + Universal Content block *"Perziuretos prekes su
+  atsiliepimais (LT)"*. Block source: [klaviyo/review_block.html](klaviyo/review_block.html).
+  Note: dynamic feeds only hydrate in D&D-template previews/sends (a minimized
+  product block bound to the feed primes it), not in bare CODE-template previews.
+- **T3 (Growave API)** — open; gates v1 (featured quote text) only.

@@ -1,0 +1,43 @@
+{# =========================================================================
+   Rossi — recently-viewed products with review stars (LT email variant)
+   Live-validated in Klaviyo 2026-07-03 (template VxjG2P; saved as Universal
+   Content "Perziuretos prekes su atsiliepimais (LT)").
+
+   HOW IT WORKS
+   - feeds.rossi_reviews        = web feed -> https://rossilt.github.io/rossi-reviews-feed/reviews.json
+                                  (wrapped root: .generated_at + .products dict; rebuilt daily)
+   - feeds.Kliento_perziuretos_prekes = native recently-viewed product feed
+   - JOIN KEY: item.external_id (string Shopify product id).
+     !! NOT item.id — that is Klaviyo's internal integer id (Phase 0 T4 finding).
+   - A minimized dynamic product block bound to Kliento_perziuretos_prekes must
+     sit in the same template to prime the feed; this HTML block renders the grid.
+   - LV/EE variants: keep stars/count, DELETE the featured_text <p> (CLAUDE.md §7).
+   - v0 feed has featured_text: null everywhere -> quote markup stays dormant
+     until v1 ships; no template change needed then.
+   ========================================================================= #}
+<div style="padding:6px 0;text-align:center;">
+{% for item in feeds.Kliento_perziuretos_prekes|slice:":3" %}
+  <div style="display:inline-block;width:31%;vertical-align:top;text-align:center;font-family:Montserrat,Arial,sans-serif;">
+    <a href="{{ item.url }}" style="text-decoration:none;color:#0F2835;">
+      <img src="{{ item.image_full_url }}" alt="{{ item.title }}"
+           style="width:100%;max-width:170px;border-radius:13px;border:1px solid #E7EBED;">
+      <div style="font-size:13px;font-weight:600;color:#0F2835;padding-top:8px;line-height:1.35;">{{ item.title }}</div>
+      <div style="font-size:13px;color:#313C42;padding-top:4px;">{{ item.price }}</div>
+    </a>
+    {% with rev=feeds.rossi_reviews.products|lookup:item.external_id %}
+      {% if rev and rev.count > 0 %}
+        <div style="font-size:13px;line-height:1.3;padding-top:6px;">
+          <span style="color:#E8B500;letter-spacing:1px;">{{ rev.stars }}</span>
+          <span style="color:#516971;"> {{ rev.avg }} ({{ rev.count }})</span>
+        </div>
+        {% if rev.featured_text %}{# LT only — remove this inner if-block in LV/EE variants #}
+          <p style="font-size:12px;font-style:italic;color:#313C42;margin:6px 8px 0;line-height:1.5;">
+            &bdquo;{{ rev.featured_text }}&ldquo;
+            {% if rev.featured_author %}<br><span style="font-style:normal;color:#516971;">&mdash; {{ rev.featured_author }}</span>{% endif %}
+          </p>
+        {% endif %}
+      {% endif %}
+    {% endwith %}
+  </div>
+{% endfor %}
+</div>
