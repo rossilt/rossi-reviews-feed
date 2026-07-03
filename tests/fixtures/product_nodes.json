@@ -1,0 +1,10 @@
+[
+  {"legacyResourceId": "6054761234637", "metafield": {"value": "{\"count\":6,\"avg\":5,\"product_id\":6054761234637}"}},
+  {"legacyResourceId": "6540411764941", "metafield": {"value": "{\"count\":60,\"avg\":4.9,\"product_id\":6540411764941}"}},
+  {"legacyResourceId": "6540413993165", "metafield": {"value": "{\"count\":\"32\",\"avg\":\"5\",\"product_id\":6540413993165}"}},
+  {"legacyResourceId": "6556857729229", "metafield": {"value": "{\"count\":\"12\",\"avg\":\"4.8\",\"product_id\":6556857729229}"}},
+  {"legacyResourceId": "6540414189773", "metafield": null},
+  {"legacyResourceId": "7000000000001", "metafield": {"value": "{\"count\":0,\"avg\":0,\"product_id\":7000000000001}"}},
+  {"legacyResourceId": "7000000000002", "metafield": {"value": "not json at all"}},
+  {"legacyResourceId": "7000000000003", "metafield": {"value": "{\"count\":3,\"avg\":4.7,\"product_id\":9999999999999}"}}
+]
