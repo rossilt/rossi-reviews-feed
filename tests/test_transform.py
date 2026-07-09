@@ -4,6 +4,7 @@ from rossi_reviews.models import Review
 from rossi_reviews.transform import (
     average_rating,
     build_summaries,
+    detect_language,
     render_stars,
     select_featured,
     summarize,
@@ -101,6 +102,48 @@ def test_featured_none_when_only_low_or_short():
 def test_featured_ignores_unpublished():
     revs = [r(body="a wonderfully detailed review of this fine product", published=False)]
     assert select_featured(revs, min_len=40) is None
+
+
+# --- language detection (v2) — texts below are real published reviews -------
+IVETA_LV = "Patīkami atsvaidzina ādu, var lietot gan zem serumiem, gan virs kosmētikas"
+PERKU_LV = "Pērku atkārtoti, sāku ar 100, tad palielināju."
+LT_DIACRITICS = "Labai geras kremas, oda tapo švelnesnė ir atrodo geriau"
+LT_PLAIN_TYPO = "Viena geriausiy priemoniy mano plaukams. Po naudojimo jie tampa minkšti, glotnüs"
+ET_TEXT = "Väga hea seerum, nahk on pärast pehme ja niisutatud."
+EN_TEXT = "I love this product, great for my skin and hair"
+
+
+def test_detect_language_on_real_corpus_samples():
+    assert detect_language(IVETA_LV) == "lv"
+    assert detect_language(PERKU_LV) == "lv"
+    assert detect_language(LT_DIACRITICS) == "lt"
+    # diacritic-less Lithuanian with a stray ü typo must NOT read as Estonian
+    assert detect_language(LT_PLAIN_TYPO) == "lt"
+    assert detect_language(ET_TEXT) == "et"
+    assert detect_language(EN_TEXT) == "en"
+    assert detect_language("Super!") is None
+    assert detect_language("") is None
+
+
+def test_summarize_buckets_featured_by_detected_language():
+    revs = [
+        r(body=IVETA_LV, created_at=_dt(2026, 7, 1), author="Iveta P."),
+        r(body=LT_DIACRITICS + " nei anksčiau", created_at=_dt(2026, 1, 1), author="Greta"),
+        r(body=EN_TEXT + ", really recommend it", created_at=_dt(2026, 6, 1), author="Ann"),
+    ]
+    s = summarize("100", revs, language="lt", min_len=40, max_len=200)
+    assert s.count == 3
+    assert s.featured_author == "Greta"        # newest 5★ is Latvian — must not win the LT slot
+    assert s.featured_author_lv == "Iveta P."  # …it wins the LV slot instead
+    assert s.featured_text_et is None
+    assert "love" not in (s.featured_text or "")   # confident EN featured nowhere
+
+
+def test_explicit_language_tag_beats_detection():
+    revs = [r(body="x " * 30, language="lv", author="TAG")]  # undetectable body, tagged lv
+    s = summarize("100", revs, language="lt", min_len=40, max_len=200)
+    assert s.featured_text is None
+    assert s.featured_author_lv == "TAG"
 
 
 # --- language policy (§7: LT-only quote, untagged = store default) ----------

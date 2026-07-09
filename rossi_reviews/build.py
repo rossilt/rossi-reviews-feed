@@ -76,14 +76,13 @@ def merge_quotes(
                 "product %s: metafield says %s/%d, growave says %s/%d",
                 pid, b.avg, b.count, q.avg, q.count,
             )
-        if q.featured_text:
-            merged[pid] = b.model_copy(
-                update={
-                    "featured_text": q.featured_text,
-                    "featured_author": q.featured_author,
-                    "featured_rating": q.featured_rating,
-                }
-            )
+        updates: dict[str, object] = {}
+        for suffix in ("", "_lv", "_et"):
+            if getattr(q, f"featured_text{suffix}"):
+                for field in ("featured_text", "featured_author", "featured_rating"):
+                    updates[field + suffix] = getattr(q, field + suffix)
+        if updates:
+            merged[pid] = b.model_copy(update=updates)
             quoted += 1
     log.info(
         "merge: %d products, %d with a featured quote, %d aggregate disagreements (metafield kept)",

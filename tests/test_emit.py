@@ -31,6 +31,20 @@ def test_document_wrapped_shape_and_zero_count_filter():
     assert rec["product_id"] == "200" and rec["stars"] == "★★★★★"
 
 
+def test_v2_language_keys_dropped_when_absent():
+    plain = summary_from_counts("1", 4.8, 3)
+    with_lv = summary_from_counts("2", 5.0, 2).model_copy(update={
+        "featured_text_lv": "Ļoti labi mitrina ādu, iesaku visiem draugiem",
+        "featured_author_lv": "Iveta P.", "featured_rating_lv": 5,
+    })
+    doc = build_document({"1": plain, "2": with_lv})
+    assert "featured_text_lv" not in doc["products"]["1"]      # nulls dropped
+    assert "featured_text_et" not in doc["products"]["2"]
+    assert doc["products"]["1"]["featured_text"] is None       # §8 base keys stay
+    assert doc["products"]["2"]["featured_text_lv"].startswith("Ļoti labi")
+    assert doc["products"]["2"]["featured_rating_lv"] == 5
+
+
 def test_document_flat_shape():
     doc = build_document(summaries(("100", 4.0, 2)), wrapped=False)
     assert set(doc) == {"100"}                      # no wrapper keys at all

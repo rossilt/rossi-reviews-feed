@@ -155,9 +155,12 @@ word boundary + `…` · 8) emit · 9) schedule daily.
   - Stars + count: **all three markets** (language-neutral).
   - Featured quote: **LT emails only in v1.** Do NOT put LT quotes into LV/EE
     emails (wrong-language experience the store has been systematically removing).
-  - v2: language-detect review text (e.g. lingua/langdetect, LT vs LV vs ET) and
-    add per-language featured fields — worthwhile soon, because the newly
-    localized review-request flows will start generating LV/EE reviews.
+  - v2 (SHIPPED 2026-07-09): review text is language-detected (dependency-free
+    char+stopword heuristic in transform.py — Growave payloads carry NO language
+    field, and untagged LV reviews were leaking into `featured_text`); featured
+    quotes are bucketed per language: `featured_text` is guaranteed LT,
+    `featured_text_lv`/`_et` (+author/rating) serve the other markets. Confident
+    non-LT/LV/ET (e.g. English) is excluded from every featured slot.
   - Template-side: the LV/EE blocks simply omit the quote markup; the schema is
     shared.
 - **Refresh:** daily, ~04:00 Europe/Vilnius.
@@ -191,7 +194,9 @@ word boundary + `…` · 8) emit · 9) schedule daily.
 - Only `count > 0` products included. v0 emits `featured_* : null`.
 - If the root wrapper breaks `|lookup` in testing, flatten to the bare dict —
   verify in T2 which shape the lookup filter accepts.
-- Reserved for v2: `featured_text_lv`, `featured_text_et`.
+- v2: `featured_text_lv`/`featured_author_lv`/`featured_rating_lv` (and `_et`)
+  are emitted ONLY when a quote exists in that language — null per-language keys
+  are dropped for size; a missing key is falsy in Django/Liquid lookups.
 
 ---
 

@@ -42,3 +42,12 @@ class ProductSummary(BaseModel):
     featured_text: str | None = None
     featured_author: str | None = None
     featured_rating: int | None = None
+    # v2 (CLAUDE.md §7/§8): per-language featured quotes for the non-default
+    # markets. None = no quote in that language; emit drops the null keys so
+    # ~1200 products don't carry six null fields each.
+    featured_text_lv: str | None = None
+    featured_author_lv: str | None = None
+    featured_rating_lv: int | None = None
+    featured_text_et: str | None = None
+    featured_author_et: str | None = None
+    featured_rating_et: int | None = None

@@ -37,6 +37,31 @@ def test_merge_adds_growave_only_products():
     assert merged["200"].featured_author == "R."
 
 
+def test_merge_carries_per_language_quotes():
+    base = {"100": summary_from_counts("100", 4.8, 20)}
+    quotes = {"100": summary_from_counts("100", 4.8, 20).model_copy(update={
+        "featured_text": "Puikus kremas, tikrai rekomenduoju visiems draugams",
+        "featured_author": "Greta", "featured_rating": 5,
+        "featured_text_lv": "Ļoti labi mitrina ādu, iesaku visiem draugiem",
+        "featured_author_lv": "Iveta P.", "featured_rating_lv": 5,
+    })}
+    m = merge_quotes(base, quotes)["100"]
+    assert m.featured_author == "Greta"
+    assert m.featured_author_lv == "Iveta P."
+    assert m.featured_text_et is None
+
+
+def test_merge_attaches_lv_only_quote():
+    base = {"100": summary_from_counts("100", 4.8, 20)}
+    quotes = {"100": summary_from_counts("100", 4.8, 20).model_copy(update={
+        "featured_text_lv": "Ļoti labi mitrina ādu, iesaku visiem draugiem",
+        "featured_author_lv": "Iveta P.", "featured_rating_lv": 5,
+    })}
+    m = merge_quotes(base, quotes)["100"]
+    assert m.featured_text is None                 # no LT quote invented
+    assert m.featured_author_lv == "Iveta P."
+
+
 def test_merge_result_is_all_product_summaries():
     base = {"100": summary_from_counts("100", 4.8, 10)}
     merged = merge_quotes(base, {})

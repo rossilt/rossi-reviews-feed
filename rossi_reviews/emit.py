@@ -29,6 +29,17 @@ class CollapseError(RuntimeError):
     """The new feed shrank suspiciously vs the published one; publish refused."""
 
 
+def _sparse_dump(s: ProductSummary) -> dict:
+    """§8 keeps the base featured_* keys (null when absent) for template
+    stability; the v2 per-language keys are emitted only when present — a
+    missing key is falsy to Django/Liquid lookups exactly like null."""
+    return {
+        k: v
+        for k, v in s.model_dump().items()
+        if v is not None or not k.endswith(("_lv", "_et"))
+    }
+
+
 def build_document(
     summaries: dict[str, ProductSummary],
     *,
@@ -37,7 +48,7 @@ def build_document(
 ) -> dict:
     """Assemble the §8 document from per-product summaries (count>0 only)."""
     products = {
-        pid: s.model_dump() for pid, s in sorted(summaries.items()) if s.count > 0
+        pid: _sparse_dump(s) for pid, s in sorted(summaries.items()) if s.count > 0
     }
     if not wrapped:
         return products
