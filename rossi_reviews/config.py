@@ -32,6 +32,9 @@ class Settings(BaseSettings):
     featured_min_len: int = 40
     featured_max_len: int = 200
 
+    # One-time manual LV/ET quote translations (rossi_reviews/manual_translations.py)
+    manual_translations_path: str = "translations/manual_quotes.json"
+
     # Emit behaviour (CLAUDE.md §5.1 / §8)
     output_path: str = "docs/reviews.json"
     feed_wrapped: bool = True         # False = bare products dict (T2 fallback)

@@ -41,6 +41,8 @@ Vilnius), commits `docs/reviews.json`, and GitHub Pages serves it.
 | `rossi_reviews/transform.py` | stars, truncation, §7 featured-selection rules (pure, tested) |
 | `rossi_reviews/shopify_source.py` | v0: paginated metafield read; handles the live-observed string/number value mix |
 | `rossi_reviews/growave_source.py` | v1: Growave client — `TODO(T3)` markers to confirm against live docs |
+| `rossi_reviews/manual_translations.py` | one-time 2026-08 manual LV/ET translations of LT quotes (`translations/manual_quotes.json`); native quote → translation → stars only; `featured_translated_lv/_et: true` marks translated quotes for the template label |
+| `scripts/import_translations.py` | one-off: filled translation xlsx → `translations/manual_quotes.json` |
 | `rossi_reviews/emit.py` | §8 document, count>0 filter, `generated_at`, **collapse guard**, atomic write |
 | `rossi_reviews/build.py` | CLI orchestrator (`--source shopify\|fixture`, `--flat`, `--force`) |
 | `.github/workflows/build-feed.yml` | daily cron + manual `workflow_dispatch` |

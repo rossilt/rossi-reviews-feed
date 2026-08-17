@@ -163,6 +163,13 @@ word boundary + `…` · 8) emit · 9) schedule daily.
     non-LT/LV/ET (e.g. English) is excluded from every featured slot.
   - Template-side: the LV/EE blocks simply omit the quote markup; the schema is
     shared.
+  - Manual-translation fill (2026-08): native LV/ET quotes accrue slowly, so the
+    LT featured quotes were exported, hand-translated once, and committed as
+    `translations/manual_quotes.json`. The build fills empty `featured_*_lv/_et`
+    slots from it (native quote always wins; pinned by product id so the fill
+    never decays as LT picks churn) and marks them `featured_translated_lv/_et:
+    true` so templates can show a "tulkots"/"tõlgitud" label. One-time — no
+    ongoing translation workflow.
 - **Refresh:** daily, ~04:00 Europe/Vilnius.
 - **Hosting default (decided):** a GitHub repo with a **GitHub Actions scheduled
   workflow** (cron) running the script; output JSON published to **GitHub Pages**

@@ -20,6 +20,7 @@ from pathlib import Path
 from .config import get_settings
 from .emit import CollapseError, publish
 from .growave_source import GrowaveSource
+from .manual_translations import apply_manual_translations, load_manual_translations
 from .models import ProductSummary
 from .shopify_source import ShopifySource, fetch_access_token, parse_review_metafield
 from .transform import build_summaries
@@ -147,6 +148,10 @@ def main(argv: list[str] | None = None) -> int:
             summaries = summaries_full(require_growave=False)
         else:
             summaries = summaries_from_shopify()
+
+    summaries = apply_manual_translations(
+        summaries, load_manual_translations(settings.manual_translations_path)
+    )
 
     try:
         publish(

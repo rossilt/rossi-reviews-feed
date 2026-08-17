@@ -51,3 +51,8 @@ class ProductSummary(BaseModel):
     featured_text_et: str | None = None
     featured_author_et: str | None = None
     featured_rating_et: int | None = None
+    # True when the quote is a manual translation of an LT review (one-time
+    # 2026-08 fill), so templates can show a "tulkots"/"tõlgitud" label.
+    # None (never False) when native, so emit's sparse dump drops the key.
+    featured_translated_lv: bool | None = None
+    featured_translated_et: bool | None = None
